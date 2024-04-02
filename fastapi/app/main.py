@@ -1,5 +1,5 @@
 
-from typing import Optional
+from typing import Optional,List
 from fastapi import FastAPI,Response,status,HTTPException
 from fastapi.params import Body
 
@@ -58,8 +58,8 @@ def root():
     return {"Hello": "wecome to my api..."} 
 
 
-@app.get("/posts")   
-def get_posts(db: Session = Depends(get_db)):
+@app.get("/posts",response_model=List[schemas.Post])   
+def get_posts(db: Session = Depends(get_db)): 
     # posts = cursor.execute("""SELECT * FROM posts""")
     # posts= cursor.fetchall()
     posts= db.query(models.Post).all()
@@ -78,7 +78,7 @@ def create_posts(post:schemas.PostCreate,db: Session = Depends(get_db)):
   db.refresh(new_post)
   return new_post
 
-@app.get("/posts/{id}",response_class=schemas.Post)
+@app.get("/posts/{id}",response_model=schemas.Post)
 def get_post(id: int,db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str (id),))
     # post =cursor.fetchone()
@@ -103,22 +103,18 @@ def delete_post(id:int,db: Session = Depends(get_db)):
    
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@app.put("/posts/{id}",response_class=schemas.Post)
+@app.put("/posts/{id}",response_model=schemas.Post)
 def update_post(id:int,updated_post:schemas.PostCreate,db: Session = Depends(get_db)):
-    # cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING * """, (post.title, post.content, post.published, str (id), ))
-    # update_post=cursor.fetchone()
-    # conn.commit()
     post_query =db.query(models.Post).filter(models.Post.id == id)
-    postt =post_query.first()
-    print(postt)
-    print("ssssssssssssssssssssssssssssss")
-    if postt == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exist") 
-    print("aaaaaaaaaaaaaaaaaaaaaa")
-    post_query.update(updated_post.model_dump(),synchronize_session=False)
-    print("bbbbbbbbbbbbbbbbbb")
-    db.commit()
-    print("cccccccccccccccccc")
+    post =post_query.first()
 
+    if post == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exist") 
    
-    return postt
+    post_query.update(updated_post.model_dump(),synchronize_session=False)
+    
+    db.commit()
+   
+    
+   
+    return post_query.first()
