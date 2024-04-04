@@ -4,8 +4,9 @@ from fastapi import FastAPI
 from .database import engine
 from . import models
 from .routers import post,user,auth
+from .config import Settings
 
-
+print(Settings.database_username) 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI() 
