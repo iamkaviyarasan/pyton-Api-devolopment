@@ -1,5 +1,6 @@
 
 
+from sqlalchemy import func
 from app import oauth2
 from .. import models, schemas 
 from fastapi import FastAPI,Response,status,HTTPException,Depends,APIRouter
@@ -21,15 +22,20 @@ router = APIRouter(
 
 
 
-@router.get("/",response_model=List[schemas.Post])   
+# @router.get("/",response_model=List[schemas.Post])  
+@router.get("/",response_model=List[schemas.PostOut])  
 def get_posts(db: Session = Depends(get_db),current_user: int= Depends(oauth2.get_current_user),Limit:int=10,skip:int=0,search:Optional[str] =""): 
     
     # posts = cursor.execute("""SELECT * FROM posts""")
     # posts= cursor.fetchall()
     print (search)
  
-    posts= db.query(models.Post).filter(models.Post.title.contains(search)).limit(Limit).offset(skip).all()
-    return posts 
+    posts = db.query(models.Post,func.count(models.Vote.post_id).label("votes")).join(
+         models.Vote,models.Vote.post_id== models.Post.id,isouter=True ).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(Limit).offset(skip).all()
+    
+   
+
+    return posts  
 
 @router.post("/", status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
 def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db),current_user: int= Depends(oauth2.get_current_user),):
@@ -46,14 +52,15 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db),current
   db.refresh(new_post)
   return new_post
 
-@router.get("/{id}",response_model=schemas.Post)
+@router.get("/{id}",response_model=schemas.PostOut)
 def get_posts(id: int,db: Session = Depends(get_db),current_user: int= Depends(oauth2.get_current_user)):
     # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str (id),))
     # post =cursor.fetchone()
-  post =db.query(models.Post).filter(models.Post.id == id).first ()
+#   post =db.query(models.Post).filter(models.Post.id == id).first ()
 
-
-    
+ 
+  post=db.query(models.Post,func.count(models.Vote.post_id).label("votes")).join(
+         models.Vote,models.Vote.post_id== models.Post.id,isouter=True ).group_by(models.Post.id).filter(models.Post.id == id).first ()
    
   if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")  
