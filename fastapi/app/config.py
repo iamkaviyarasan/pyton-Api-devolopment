@@ -15,4 +15,10 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
 
-Settings = Settings()
+    class Config:
+        env_file = ".env"
+        # env_file_encoding = "utf-8"
+        # env_file_encoding = "utf-8"
+        # env_file_encoding = "utf-8"
+
+settings = Settings()
