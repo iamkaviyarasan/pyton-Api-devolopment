@@ -99,7 +99,7 @@ def update_posts(id:int,updated_post:schemas.PostCreate,db: Session = Depends(ge
 
     if post.owner_id !=current_user.id:
         print("inisde 2md ifs")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exist") 
+        raise HTTPException (status_code=status.HTTP_403_FORBIDDEN,detail="Not authorized to perform requested action")       
    
     post_query.update(updated_post.model_dump(),synchronize_session=False)
     
