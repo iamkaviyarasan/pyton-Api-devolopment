@@ -17,6 +17,9 @@ class Post(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
    
     owner = relationship("User")
+
+    def __repr__(self):
+        return f"Post(id={self.id},title={self.title}, content={self.content}, published={self.published},owner_id={self.owner_id})"
     
 class User(Base):
     __tablename__ = "users"
