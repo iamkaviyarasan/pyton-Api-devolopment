@@ -7,3 +7,6 @@
  -docker ps- to know the which container is run
  - docker push iamkaviyarasan/fastapi- to push into docker repository
  - docker-compose down -  to stop server
+
+
+ - deployed url = `https://pyton-api-devolopment.onrender.com/docs`
