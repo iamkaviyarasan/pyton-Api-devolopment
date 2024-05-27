@@ -10,3 +10,4 @@
 
 
  - deployed url = `https://pyton-api-devolopment.onrender.com/docs`
+ - docker deployed url `https://fastapi-w7xw.onrender.com`
