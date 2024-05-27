@@ -36,3 +36,4 @@ def test_vote_unauthorized_user(client, test_posts):
 def test_vote_unauthorized_user_delete(client, test_posts):
     res = client.post("/vote/", json={"post_id": test_posts[3].id, "dir": 0})
     assert res.status_code == 401
+
